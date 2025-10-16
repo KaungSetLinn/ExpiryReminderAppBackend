@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 /**
  * 0H02009_カゥンセッリン
  */
@@ -26,4 +28,5 @@ public class FrequentlyBuyFoodDto {
     private String foodImageUrl;
     private String memo;
     private Integer reminderDaysBeforeExpire;
+    private LocalTime reminderTime;
 }

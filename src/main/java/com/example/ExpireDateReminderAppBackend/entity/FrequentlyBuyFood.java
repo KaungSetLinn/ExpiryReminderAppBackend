@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 /**
  * 0H02009_カゥンセッリン
  */
@@ -53,5 +55,8 @@ public class FrequentlyBuyFood {
 
     @Column(name = "reminder_days_before_expire")
     private Integer reminderDaysBeforeExpire;
+
+    @Column(name = "reminder_time")
+    private LocalTime reminderTime;
 
 }

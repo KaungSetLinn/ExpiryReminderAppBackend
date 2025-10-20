@@ -8,6 +8,7 @@ import com.example.ExpireDateReminderAppBackend.mapper.FrequentlyBuyFoodMapper;
 import com.example.ExpireDateReminderAppBackend.repository.CategoryRepository;
 import com.example.ExpireDateReminderAppBackend.repository.FrequentlyBuyFoodRepository;
 import com.example.ExpireDateReminderAppBackend.repository.UserRepository;
+import com.example.ExpireDateReminderAppBackend.util.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +57,7 @@ public class FrequentlyBuyFoodService {
 
         // 🔹 Handle file upload
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = FileUploadUtil.saveFile(file, uploadDir);
             frequentlyBuyFood.setFoodImageUrl("/uploads/" + fileName);
         }
 
@@ -65,18 +66,4 @@ public class FrequentlyBuyFoodService {
         return frequentlyBuyFoodMapper.toDto(savedFrequentlyBuyFood);
     }
 
-    private String saveFile(MultipartFile file) throws IOException {
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path filePath = uploadPath.resolve(fileName);
-
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return fileName;
-    }
 }

@@ -1,0 +1,85 @@
+package com.example.ExpireDateReminderAppBackend.service;
+
+import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
+import com.example.ExpireDateReminderAppBackend.entity.Category;
+import com.example.ExpireDateReminderAppBackend.entity.Food;
+import com.example.ExpireDateReminderAppBackend.entity.Status;
+import com.example.ExpireDateReminderAppBackend.entity.User;
+import com.example.ExpireDateReminderAppBackend.mapper.FoodMapper;
+import com.example.ExpireDateReminderAppBackend.repository.CategoryRepository;
+import com.example.ExpireDateReminderAppBackend.repository.FoodRepository;
+import com.example.ExpireDateReminderAppBackend.repository.StatusRepository;
+import com.example.ExpireDateReminderAppBackend.repository.UserRepository;
+import com.example.ExpireDateReminderAppBackend.util.FileUploadUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 0H02009_カゥンセッリン
+ */
+@Service
+public class FoodService {
+
+//    @Autowired tells Spring:
+//    “Find a suitable bean of this type in the application context and inject it here automatically.”
+    @Autowired
+    private FoodRepository foodRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private StatusRepository statusRepository;
+
+    @Autowired
+    private FoodMapper foodMapper;
+
+    @Value("${file.upload-dir:uploads}")
+    private String uploadDir;
+
+    public List<FoodDto> getAllFoodByUserId(Long userId) {
+        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
+
+        return foods.stream()
+                .map(foodMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public FoodDto saveFood(FoodDto foodDto, MultipartFile file) throws IOException {
+        User user = userRepository.findById(foodDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Category category = categoryRepository.findById(foodDto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        Status status = statusRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Status not found"));
+
+        // 🔹 Convert DTO → Entity
+        Food food = foodMapper.toEntity(foodDto);
+        food.setUser(user);
+        food.setCategory(category);
+        food.setStatus(status);
+
+        // 🔹 Handle file upload
+        if (file != null && !file.isEmpty()) {
+            String fileName = FileUploadUtil.saveFile(file, uploadDir);
+            food.setFoodImageUrl("/uploads/" + fileName);
+        }
+
+        // 🔹 Save to DB
+        Food savedFood = foodRepository.save(food);
+
+        // 🔹 Convert back to DTO
+        return foodMapper.toDto(savedFood);
+    }
+}

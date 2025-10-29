@@ -29,6 +29,20 @@ public class FoodController {
         return ResponseEntity.ok(foodDtos);
     }
 
+    @GetMapping("/grouped")
+    public ResponseEntity<List<FoodDto>> getGroupedAndSortedFoodByUserId(@RequestParam Long userId) {
+        List<FoodDto> foodDtos = foodService.getGroupedAndSortedFoodByUserId(userId);
+
+        return ResponseEntity.ok(foodDtos);
+    }
+
+    @GetMapping("/unique")
+    public ResponseEntity<List<FoodDto>> getUniqueFoodByUserId(@RequestParam Long userId) {
+        List<FoodDto> foodDtos = foodService.getUniqueFoodByUserId(userId);
+
+        return ResponseEntity.ok(foodDtos);
+    }
+
     // ✅ Add new food (supports image upload)
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<FoodDto> createFood(
@@ -38,6 +52,17 @@ public class FoodController {
         FoodDto savedFoodDto = foodService.saveFood(foodDto, file);
 
         return new ResponseEntity<>(savedFoodDto, HttpStatus.CREATED);
+    }
+
+    /**
+     * Mark a food as discarded.
+     * Example request: PUT /api/foods/{id}/discard
+     */
+    @PutMapping("/{id}/discard")
+    public ResponseEntity<FoodDto> discardFood(@PathVariable("id") Long foodId) {
+        FoodDto updatedFood = foodService.discardFood(foodId);
+
+        return ResponseEntity.ok(updatedFood);
     }
 
 }

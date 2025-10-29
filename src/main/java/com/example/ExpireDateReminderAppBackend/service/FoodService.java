@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +49,51 @@ public class FoodService {
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
+    private Long discardedStatusId = 3L;
+
     public List<FoodDto> getAllFoodByUserId(Long userId) {
-        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
+//        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
+        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdNotOrderByExpireDateAsc(userId, discardedStatusId);
 
         return foods.stream()
+                .map(foodMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<FoodDto> getGroupedAndSortedFoodByUserId(Long userId) {
+        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdNotOrderByExpireDateAsc(userId, discardedStatusId);
+
+        // Convert to Dto
+        List<FoodDto> foodDtos = foods.stream()
+                .map(foodMapper::toDto)
+                .collect(Collectors.toList());
+
+        // Group by food name
+        Map<String, List<FoodDto>> foodsGroupedByName = foodDtos.stream()
+                .collect(Collectors.groupingBy(FoodDto::getFoodName));
+
+        return foodsGroupedByName.values().stream()
+                .sorted(Comparator.comparing(group -> group.stream()
+                        .map(FoodDto::getExpireDate)
+                        .min(LocalDate::compareTo)
+                        .orElse(LocalDate.MAX)))
+                .flatMap(group -> group.stream()
+                        .sorted(Comparator.comparing(FoodDto::getExpireDate)))
+                .collect(Collectors.toList());
+    }
+
+    public List<FoodDto> getUniqueFoodByUserId(Long userId) {
+        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
+
+        // Deduplicate by foodName — keep the first item (earliest expireDate)
+        Map<String, Food> uniqueFoods = foods.stream()
+                .collect(Collectors.toMap(
+                        Food::getFoodName,
+                        food -> food,
+                        (existing, duplicate) -> existing // keep the first one
+                ));
+
+        return uniqueFoods.values().stream()
                 .map(foodMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -81,5 +125,24 @@ public class FoodService {
 
         // 🔹 Convert back to DTO
         return foodMapper.toDto(savedFood);
+    }
+
+    public FoodDto discardFood(Long foodId) {
+        // Find the food by ID
+        Food food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
+
+        // Find the "discarded" status (assuming its ID is 3L, adjust as needed)
+        Status discardedStatus = statusRepository.findById(3L)
+                .orElseThrow(() -> new RuntimeException("Discarded status not found"));
+
+        // Update the food's status
+        food.setStatus(discardedStatus);
+
+        // Save the food
+        Food updatedFood = foodRepository.save(food);
+
+        // Return DTO
+        return foodMapper.toDto(updatedFood);
     }
 }

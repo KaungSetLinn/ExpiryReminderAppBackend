@@ -10,6 +10,7 @@ import java.util.List;
 public interface FoodRepository extends JpaRepository<Food, Long> {
     List<Food> findByUserId(Long userId);
     List<Food> findByUserIdOrderByExpireDateAsc(Long userId);
+    List<Food> findByUserIdAndStatus_StatusIdOrderByExpireDateAsc(Long userId, Long activeStatusId);
     List<Food> findByUserIdAndStatus_StatusIdNotOrderByExpireDateAsc(Long userId, Long discardedStatusId);
     List<Food> findByCategoryId(Long categoryId);
     List<Food> findByStatus_StatusId(Long statusId);

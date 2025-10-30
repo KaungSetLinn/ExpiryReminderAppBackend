@@ -49,11 +49,13 @@ public class FoodService {
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
+    private Long activeStatusId = 1L;
+    private Long consumedStatusId = 2L;
     private Long discardedStatusId = 3L;
 
     public List<FoodDto> getAllFoodByUserId(Long userId) {
 //        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
-        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdNotOrderByExpireDateAsc(userId, discardedStatusId);
+        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
 
         return foods.stream()
                 .map(foodMapper::toDto)
@@ -61,7 +63,7 @@ public class FoodService {
     }
 
     public List<FoodDto> getGroupedAndSortedFoodByUserId(Long userId) {
-        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdNotOrderByExpireDateAsc(userId, discardedStatusId);
+        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
 
         // Convert to Dto
         List<FoodDto> foodDtos = foods.stream()
@@ -133,7 +135,7 @@ public class FoodService {
                 .orElseThrow(() -> new RuntimeException("Food not found with id: " + foodId));
 
         // Find the "discarded" status (assuming its ID is 3L, adjust as needed)
-        Status discardedStatus = statusRepository.findById(3L)
+        Status discardedStatus = statusRepository.findById(discardedStatusId)
                 .orElseThrow(() -> new RuntimeException("Discarded status not found"));
 
         // Update the food's status
@@ -144,5 +146,26 @@ public class FoodService {
 
         // Return DTO
         return foodMapper.toDto(updatedFood);
+    }
+
+    public FoodDto consumeFood(FoodDto foodDto) {
+        Food food = foodRepository.findById(foodDto.getFoodId())
+                .orElseThrow(() -> new RuntimeException("Food not found with id: " + foodDto.getFoodId()));
+
+        // Update the current contents
+        food.setCurrentContents(foodDto.getCurrentContents());
+
+        // If amount reaches 0, set status to “consumed”
+        if (food.getCurrentContents() <= 0) {
+            Status consumedStatus = statusRepository.findById(consumedStatusId)
+                    .orElseThrow(() -> new RuntimeException("Status not found"));
+
+            food.setStatus(consumedStatus);
+        }
+
+        // saved the updated food in the database
+        Food savedFood = foodRepository.save(food);
+
+        return foodMapper.toDto(savedFood);
     }
 }

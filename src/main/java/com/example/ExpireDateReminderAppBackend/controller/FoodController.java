@@ -65,4 +65,15 @@ public class FoodController {
         return ResponseEntity.ok(updatedFood);
     }
 
+    /**
+     * Mark a food as consumed.
+     * Example request: PUT /api/foods/consume
+     */
+    @PutMapping("/consume")
+    public ResponseEntity<FoodDto> consumeFood(@RequestBody FoodDto foodDto) {
+        FoodDto updatedFood = foodService.consumeFood(foodDto);
+
+        return ResponseEntity.ok(updatedFood);
+    }
+
 }

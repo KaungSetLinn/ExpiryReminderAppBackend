@@ -29,8 +29,6 @@ public class FoodDto {
     private Integer currentContents;
     private String contentUnit;
     private LocalDate expireDate;
-    private Integer reminderDaysBeforeExpire;
-    private String reminderTime;
     private String memo;
     private String foodImageUrl;
 }

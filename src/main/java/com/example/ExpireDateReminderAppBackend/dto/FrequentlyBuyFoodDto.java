@@ -27,6 +27,4 @@ public class FrequentlyBuyFoodDto {
     private String contentUnit;
     private String foodImageUrl;
     private String memo;
-    private Integer reminderDaysBeforeExpire;
-    private LocalTime reminderTime;
 }

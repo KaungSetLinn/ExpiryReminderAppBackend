@@ -54,12 +54,6 @@ public class Food {
     @Column(name = "expire_date")
     private LocalDate expireDate;
 
-    @Column(name = "reminder_days_before_expire")
-    private Integer reminderDaysBeforeExpire;
-
-    @Column(name = "reminder_time")
-    private String reminderTime; // e.g. 10am or 10:00
-
     private String memo;
 
     @Column(name = "food_image_url")

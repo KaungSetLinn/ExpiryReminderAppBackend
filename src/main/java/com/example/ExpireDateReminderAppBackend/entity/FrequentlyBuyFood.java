@@ -53,10 +53,4 @@ public class FrequentlyBuyFood {
 
     private String memo;
 
-    @Column(name = "reminder_days_before_expire")
-    private Integer reminderDaysBeforeExpire;
-
-    @Column(name = "reminder_time")
-    private LocalTime reminderTime;
-
 }

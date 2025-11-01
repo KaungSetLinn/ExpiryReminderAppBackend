@@ -12,4 +12,6 @@ public interface FrequentlyBuyFoodRepository extends JpaRepository<FrequentlyBuy
 
     List<FrequentlyBuyFood> findByCategory_Id(Long categoryId);
 
+    // ✅ New method: find by userId and order by frequentlyBuyFoodId descending
+    List<FrequentlyBuyFood> findByUser_IdOrderByFrequentlyBuyFoodIdDesc(Long userId);
 }

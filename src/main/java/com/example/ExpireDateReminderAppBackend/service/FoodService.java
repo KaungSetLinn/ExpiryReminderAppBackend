@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class FoodService {
     private Long discardedStatusId = 3L;
 
     public List<FoodDto> getAllFoodByUserId(Long userId) {
-//        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
-        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
+//        List<Food> foods = foodRepository.findByUser_IdOrderByExpireDateAsc(userId);
+        List<Food> foods = foodRepository.findByUser_IdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
 
         return foods.stream()
                 .map(foodMapper::toDto)
@@ -63,7 +64,7 @@ public class FoodService {
     }
 
     public List<FoodDto> getGroupedAndSortedFoodByUserId(Long userId) {
-        List<Food> foods = foodRepository.findByUserIdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
+        List<Food> foods = foodRepository.findByUser_IdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
 
         // Convert to Dto
         List<FoodDto> foodDtos = foods.stream()
@@ -85,14 +86,15 @@ public class FoodService {
     }
 
     public List<FoodDto> getUniqueFoodByUserId(Long userId) {
-        List<Food> foods = foodRepository.findByUserIdOrderByExpireDateAsc(userId);
+        List<Food> foods = foodRepository.findByUser_IdOrderByFoodIdDesc(userId);
 
         // Deduplicate by foodName — keep the first item (earliest expireDate)
         Map<String, Food> uniqueFoods = foods.stream()
                 .collect(Collectors.toMap(
                         Food::getFoodName,
                         food -> food,
-                        (existing, duplicate) -> existing // keep the first one
+                        (existing, duplicate) -> existing, // keep the first one
+                        LinkedHashMap::new                            // ✅ preserve order
                 ));
 
         return uniqueFoods.values().stream()

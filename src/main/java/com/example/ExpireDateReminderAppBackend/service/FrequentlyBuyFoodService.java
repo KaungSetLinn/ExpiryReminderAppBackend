@@ -39,7 +39,7 @@ public class FrequentlyBuyFoodService {
     private String uploadDir;
 
     public List<FrequentlyBuyFoodDto> getAllFrequentlyBuyFoodByUserId(Long userId) {
-        return frequentlyBuyFoodRepository.findByUser_Id(userId).stream()
+        return frequentlyBuyFoodRepository.findByUser_IdOrderByFrequentlyBuyFoodIdDesc(userId).stream()
                 .map(frequentlyBuyFoodMapper::toDto)
                 .collect(Collectors.toList());
     }

@@ -60,7 +60,7 @@ public class AuthController {
                 Cookie accessCookie = new Cookie("ACCESS_TOKEN", accessToken);
                 accessCookie.setHttpOnly(true);
                 accessCookie.setPath("/");
-                accessCookie.setMaxAge(60 * 5); // 1 hour
+                accessCookie.setMaxAge(60 * 60); // 1 hour
                 response.addCookie(accessCookie);
 
                 // REFRESH TOKEN: 7 days
@@ -70,11 +70,14 @@ public class AuthController {
                 refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
                 response.addCookie(refreshCookie);
 
-                return ResponseEntity.ok(Map.of(
-                        "message", "Login Successful",
-                        "userId", user.getId(),
-                        "username", user.getUsername()
-                ));
+                // ✅ Return a typed DTO instead of Map
+                UserResponseDto responseDto = UserResponseDto.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .build();
+
+                return ResponseEntity.ok(responseDto);
             }
         }
         return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));

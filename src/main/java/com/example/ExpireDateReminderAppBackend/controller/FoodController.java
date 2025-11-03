@@ -1,6 +1,7 @@
 package com.example.ExpireDateReminderAppBackend.controller;
 
 import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
+import com.example.ExpireDateReminderAppBackend.dto.FoodReportDto;
 import com.example.ExpireDateReminderAppBackend.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,6 +75,13 @@ public class FoodController {
         FoodDto updatedFood = foodService.consumeFood(foodDto);
 
         return ResponseEntity.ok(updatedFood);
+    }
+
+    @GetMapping("/reports/{userId}")
+    public ResponseEntity<FoodReportDto> getFoodReport(@PathVariable("userId") Long userId) {
+        FoodReportDto report = foodService.getFoodReport(userId);
+
+        return ResponseEntity.ok(report);
     }
 
 }

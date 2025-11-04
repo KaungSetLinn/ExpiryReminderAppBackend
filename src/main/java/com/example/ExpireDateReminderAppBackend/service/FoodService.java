@@ -53,7 +53,14 @@ public class FoodService {
     private Long discardedStatusId = 3L;
 
     public List<FoodDto> getAllFoodByUserId(Long userId) {
-//        List<Food> foods = foodRepository.findByUser_IdOrderByExpireDateAsc(userId);
+        List<Food> foods = foodRepository.findByUser_Id(userId);
+
+        return foods.stream()
+                .map(foodMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<FoodDto> getActiveFoodByUserId(Long userId) {
         List<Food> foods = foodRepository.findByUser_IdAndStatus_StatusIdOrderByExpireDateAsc(userId, activeStatusId);
 
         return foods.stream()

@@ -23,9 +23,17 @@ public class FoodController {
     @Autowired
     private FoodService foodService;
 
+    // API endpoint for calendar
     @GetMapping
     public ResponseEntity<List<FoodDto>> getAllFoodByUserId(@RequestParam Long userId) {
         List<FoodDto> foodDtos = foodService.getAllFoodByUserId(userId);
+
+        return ResponseEntity.ok(foodDtos);
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<FoodDto>> getActiveFoodByUserId(@RequestParam Long userId) {
+        List<FoodDto> foodDtos = foodService.getActiveFoodByUserId(userId);
 
         return ResponseEntity.ok(foodDtos);
     }

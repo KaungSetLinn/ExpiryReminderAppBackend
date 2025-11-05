@@ -21,6 +21,13 @@ import java.util.List;
 public class FrequentlyBuyFoodController {
     private final FrequentlyBuyFoodService frequentlyBuyFoodService;
 
+    @GetMapping("/{frequentlyBuyFoodId}")
+    public FrequentlyBuyFoodDto getFrequentlyBuyFoodById(@PathVariable Long frequentlyBuyFoodId) {
+        FrequentlyBuyFoodDto frequentlyBuyFoodDto = frequentlyBuyFoodService.getFrequentlyBuyFoodById(frequentlyBuyFoodId);
+
+        return frequentlyBuyFoodDto;
+    }
+
     @GetMapping
     public ResponseEntity<List<FrequentlyBuyFoodDto>> getAllFrequentlyBuyFood(@RequestParam Long userId) {
         List<FrequentlyBuyFoodDto> frequentlyBuyFoodDtos = frequentlyBuyFoodService.getAllFrequentlyBuyFoodByUserId(userId);
@@ -36,5 +43,16 @@ public class FrequentlyBuyFoodController {
         FrequentlyBuyFoodDto savedDto = frequentlyBuyFoodService.saveFrequentlyBuyFood(frequentlyBuyFoodDto, file);
 
         return ResponseEntity.ok(savedDto);
+    }
+
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<FrequentlyBuyFoodDto> updateFrequentlyBuyFood(
+            @PathVariable("id") Long foodId,
+            @RequestPart("data") FrequentlyBuyFoodDto frequentlyBuyFoodDto,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    ) throws IOException {
+        FrequentlyBuyFoodDto updatedFood = frequentlyBuyFoodService.updateFrequentlyBuyFood(foodId, frequentlyBuyFoodDto, file);
+
+        return ResponseEntity.ok(updatedFood);
     }
 }

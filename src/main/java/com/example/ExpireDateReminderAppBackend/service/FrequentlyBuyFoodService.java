@@ -1,5 +1,6 @@
 package com.example.ExpireDateReminderAppBackend.service;
 
+import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
 import com.example.ExpireDateReminderAppBackend.dto.FrequentlyBuyFoodDto;
 import com.example.ExpireDateReminderAppBackend.entity.Category;
 import com.example.ExpireDateReminderAppBackend.entity.FrequentlyBuyFood;
@@ -38,6 +39,13 @@ public class FrequentlyBuyFoodService {
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
+    public FrequentlyBuyFoodDto getFrequentlyBuyFoodById(Long frequentlyBuyFoodId) {
+        FrequentlyBuyFood food = frequentlyBuyFoodRepository.findById(frequentlyBuyFoodId)
+                .orElseThrow(() -> new RuntimeException("Frequently buy food not found"));
+
+        return frequentlyBuyFoodMapper.toDto(food);
+    }
+
     public List<FrequentlyBuyFoodDto> getAllFrequentlyBuyFoodByUserId(Long userId) {
         return frequentlyBuyFoodRepository.findByUser_IdOrderByFrequentlyBuyFoodIdDesc(userId).stream()
                 .map(frequentlyBuyFoodMapper::toDto)
@@ -64,6 +72,35 @@ public class FrequentlyBuyFoodService {
         // 🔹 Save to DB
         FrequentlyBuyFood savedFrequentlyBuyFood = frequentlyBuyFoodRepository.save(frequentlyBuyFood);
         return frequentlyBuyFoodMapper.toDto(savedFrequentlyBuyFood);
+    }
+
+    public FrequentlyBuyFoodDto updateFrequentlyBuyFood(Long frequentlyBuyFoodId, FrequentlyBuyFoodDto foodDto, MultipartFile file) throws IOException {
+        FrequentlyBuyFood existingFood = frequentlyBuyFoodRepository.findById(frequentlyBuyFoodId)
+                .orElseThrow(() -> new RuntimeException("Food not found with id " + frequentlyBuyFoodId));
+
+        Category category = categoryRepository.findById(foodDto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        // Update editable fields
+        existingFood.setFrequentlyBuyFoodName(foodDto.getFrequentlyBuyFoodName());
+        existingFood.setCategory(category);
+        existingFood.setQuantity(foodDto.getQuantity());
+        existingFood.setUnit(foodDto.getUnit());
+        existingFood.setTotalContents(foodDto.getTotalContents());
+        existingFood.setContentUnit(foodDto.getContentUnit());
+        existingFood.setMemo(foodDto.getMemo());
+
+        // If a new image file is uploaded, delete the old one and then save the new
+        if (file != null && !file.isEmpty()) {
+            String oldImageUrl = existingFood.getFoodImageUrl();
+
+            FileUploadUtil.deleteOldFile(oldImageUrl, uploadDir);
+            String fileName = FileUploadUtil.saveFile(file, uploadDir);
+            existingFood.setFoodImageUrl("/uploads/" + fileName);
+        }
+
+        FrequentlyBuyFood updatedFood = frequentlyBuyFoodRepository.save(existingFood);
+        return frequentlyBuyFoodMapper.toDto(updatedFood);
     }
 
 }

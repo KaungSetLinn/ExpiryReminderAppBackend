@@ -103,4 +103,20 @@ public class FrequentlyBuyFoodService {
         return frequentlyBuyFoodMapper.toDto(updatedFood);
     }
 
+    public void deleteFrequentlyBuyFood(Long frequentlyBuyFoodId) {
+        // Find the existing entity
+        FrequentlyBuyFood existingFood = frequentlyBuyFoodRepository.findById(frequentlyBuyFoodId)
+                .orElseThrow(() -> new RuntimeException("Frequently buy food not found with id " + frequentlyBuyFoodId));
+
+        // Delete associated image file if exists
+        if (existingFood.getFoodImageUrl() != null) {
+            String imageUrl = existingFood.getFoodImageUrl();
+
+            FileUploadUtil.deleteOldFile(imageUrl, uploadDir);
+        }
+
+        // Delete the entity from database
+        frequentlyBuyFoodRepository.delete(existingFood);
+    }
+
 }

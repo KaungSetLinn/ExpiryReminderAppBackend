@@ -55,4 +55,11 @@ public class FrequentlyBuyFoodController {
 
         return ResponseEntity.ok(updatedFood);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFrequentlyBuyFood(@PathVariable Long id) {
+        frequentlyBuyFoodService.deleteFrequentlyBuyFood(id);
+
+        return ResponseEntity.noContent().build();  // HTTP 204
+    }
 }

@@ -35,6 +35,7 @@ public class FrequentlyBuyFoodService {
     private final FrequentlyBuyFoodMapper frequentlyBuyFoodMapper;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final FoodService foodService;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -94,9 +95,16 @@ public class FrequentlyBuyFoodService {
         if (file != null && !file.isEmpty()) {
             String oldImageUrl = existingFood.getFoodImageUrl();
 
+            // 1. Delete the old file
             FileUploadUtil.deleteOldFile(oldImageUrl, uploadDir);
+
+            // 2. Save new file and update URL
             String fileName = FileUploadUtil.saveFile(file, uploadDir);
-            existingFood.setFoodImageUrl("/uploads/" + fileName);
+            String newImageUrl = "/uploads/" + fileName;
+            existingFood.setFoodImageUrl(newImageUrl);
+
+            // 3. Update all Food records that share the same old image URL
+            foodService.updateFoodsWithSameImage(oldImageUrl, newImageUrl);
         }
 
         FrequentlyBuyFood updatedFood = frequentlyBuyFoodRepository.save(existingFood);
@@ -107,13 +115,6 @@ public class FrequentlyBuyFoodService {
         // Find the existing entity
         FrequentlyBuyFood existingFood = frequentlyBuyFoodRepository.findById(frequentlyBuyFoodId)
                 .orElseThrow(() -> new RuntimeException("Frequently buy food not found with id " + frequentlyBuyFoodId));
-
-        // Delete associated image file if exists
-        if (existingFood.getFoodImageUrl() != null) {
-            String imageUrl = existingFood.getFoodImageUrl();
-
-            FileUploadUtil.deleteOldFile(imageUrl, uploadDir);
-        }
 
         // Delete the entity from database
         frequentlyBuyFoodRepository.delete(existingFood);

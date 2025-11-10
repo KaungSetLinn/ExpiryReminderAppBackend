@@ -53,7 +53,7 @@ public class FoodService {
     private Long discardedStatusId = 3L;
 
     public List<FoodDto> getAllFoodByUserId(Long userId) {
-        List<Food> foods = foodRepository.findByUser_Id(userId);
+        List<Food> foods = foodRepository.findByUser_IdOrderByFoodIdDesc(userId);
 
         return foods.stream()
                 .map(foodMapper::toDto)
@@ -241,5 +241,19 @@ public class FoodService {
                 .consumedTrend(consumedTrend)
                 .wastedTrend(wastedTrend)
                 .build();
+    }
+
+    public void updateFoodsWithSameImage(String oldImageUrl, String newImageUrl) {
+        if (oldImageUrl == null || oldImageUrl.isEmpty()) return;
+
+        List<Food> foodsWithSameImage = foodRepository.findByFoodImageUrl(oldImageUrl);
+
+        if (foodsWithSameImage.isEmpty())   return;
+
+        for (Food food : foodsWithSameImage) {
+            food.setFoodImageUrl(newImageUrl);
+        }
+
+        foodRepository.saveAll(foodsWithSameImage);
     }
 }

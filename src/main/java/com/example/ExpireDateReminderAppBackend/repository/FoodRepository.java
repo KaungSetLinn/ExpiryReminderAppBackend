@@ -15,4 +15,5 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
     List<Food> findByUser_IdAndStatus_StatusIdNotOrderByExpireDateAsc(Long userId, Long discardedStatusId);
     List<Food> findByCategoryId(Long categoryId);
     List<Food> findByStatus_StatusId(Long statusId);
+    List<Food> findByFoodImageUrl(String foodImageUrl);
 }

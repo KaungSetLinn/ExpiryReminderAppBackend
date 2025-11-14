@@ -2,6 +2,7 @@ package com.example.ExpireDateReminderAppBackend.service;
 
 import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
 import com.example.ExpireDateReminderAppBackend.dto.FoodReportDto;
+import com.example.ExpireDateReminderAppBackend.dto.TopFoodDto;
 import com.example.ExpireDateReminderAppBackend.entity.Category;
 import com.example.ExpireDateReminderAppBackend.entity.Food;
 import com.example.ExpireDateReminderAppBackend.entity.Status;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Map.Entry.comparingByValue;
 
 /**
  * 0H02009_カゥンセッリン
@@ -255,5 +258,17 @@ public class FoodService {
         }
 
         foodRepository.saveAll(foodsWithSameImage);
+    }
+
+    public List<TopFoodDto> getTopFoodsByUser(Long userId) {
+        Map<String, Long> foodCountByName = foodRepository.findByUser_Id(userId)
+                .stream()
+                .collect(Collectors.groupingBy(Food::getFoodName, Collectors.counting()));
+
+        return foodCountByName.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .map(foodMapper::toTopFoodDto)
+                .collect(Collectors.toList());
     }
 }

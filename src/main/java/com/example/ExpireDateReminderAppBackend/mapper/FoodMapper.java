@@ -1,10 +1,13 @@
 package com.example.ExpireDateReminderAppBackend.mapper;
 
 import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
+import com.example.ExpireDateReminderAppBackend.dto.TopFoodDto;
 import com.example.ExpireDateReminderAppBackend.entity.Food;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface FoodMapper {
@@ -17,4 +20,8 @@ public interface FoodMapper {
 
     @InheritInverseConfiguration
     Food toEntity(FoodDto foodDto);
+
+    @Mapping(source = "key", target = "foodName")
+    @Mapping(source = "value", target = "count")
+    TopFoodDto toTopFoodDto(Map.Entry<String, Long> entry);
 }

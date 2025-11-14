@@ -2,6 +2,7 @@ package com.example.ExpireDateReminderAppBackend.controller;
 
 import com.example.ExpireDateReminderAppBackend.dto.FoodDto;
 import com.example.ExpireDateReminderAppBackend.dto.FoodReportDto;
+import com.example.ExpireDateReminderAppBackend.dto.TopFoodDto;
 import com.example.ExpireDateReminderAppBackend.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,18 @@ public class FoodController {
         FoodReportDto report = foodService.getFoodReport(userId);
 
         return ResponseEntity.ok(report);
+    }
+
+    /**
+     * Get top 5 foods by registration count for a specific user.
+     * @param userId The ID of the user
+     * @return List of TopFoodDto
+     */
+    @GetMapping("/top/{userId}")
+    public ResponseEntity<List<TopFoodDto>> getTopFoods(@PathVariable Long userId) {
+        List<TopFoodDto> topFoods = foodService.getTopFoodsByUser(userId);
+
+        return ResponseEntity.ok(topFoods);
     }
 
 }

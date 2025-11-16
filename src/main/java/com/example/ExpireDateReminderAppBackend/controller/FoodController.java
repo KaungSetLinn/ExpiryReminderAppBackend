@@ -86,13 +86,6 @@ public class FoodController {
         return ResponseEntity.ok(updatedFood);
     }
 
-    @GetMapping("/reports/{userId}")
-    public ResponseEntity<FoodReportDto> getFoodReport(@PathVariable("userId") Long userId) {
-        FoodReportDto report = foodService.getFoodReport(userId);
-
-        return ResponseEntity.ok(report);
-    }
-
     /**
      * Get top 5 foods by registration count for a specific user.
      * @param userId The ID of the user

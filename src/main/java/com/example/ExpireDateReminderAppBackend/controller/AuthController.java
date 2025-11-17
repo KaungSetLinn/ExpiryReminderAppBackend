@@ -1,9 +1,12 @@
 package com.example.ExpireDateReminderAppBackend.controller;
+import com.example.ExpireDateReminderAppBackend.dto.ForgotPasswordRequest;
+import com.example.ExpireDateReminderAppBackend.dto.ResetPasswordRequest;
 import com.example.ExpireDateReminderAppBackend.dto.UserDto;
 import com.example.ExpireDateReminderAppBackend.dto.UserResponseDto;
 import com.example.ExpireDateReminderAppBackend.entity.User;
 import com.example.ExpireDateReminderAppBackend.mapper.UserMapper;
 import com.example.ExpireDateReminderAppBackend.repository.UserRepository;
+import com.example.ExpireDateReminderAppBackend.service.UserService;
 import com.example.ExpireDateReminderAppBackend.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +31,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserMapper userMapper;
+    private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody UserDto userDto) {
@@ -163,6 +167,20 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(Map.of("userId", userId));
+    }
+
+    @PostMapping("/auth/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        String result = userService.forgotPassword(request.getEmail());
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        String result = userService.resetPassword(request.getToken(), request.getNewPassword());
+
+        return ResponseEntity.ok(result);
     }
 
 }

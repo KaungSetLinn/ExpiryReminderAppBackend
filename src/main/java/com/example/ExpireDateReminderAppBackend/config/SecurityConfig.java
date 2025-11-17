@@ -38,7 +38,10 @@ public class SecurityConfig {
                                 "/register",
                                 "/login",
                                 "/refresh",
-                                "/api/auth/session"
+                                "/api/auth/session",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/reset-password/**"
                         ).permitAll()
                         .requestMatchers("/api/departments/**").permitAll()
                         .anyRequest().authenticated()
@@ -85,7 +88,8 @@ public class SecurityConfig {
 
             // Allow unauthenticated paths (avoid blocking /login, /register, /refresh)
             String path = request.getRequestURI();
-            if (path.equals("/login") || path.equals("/register") || path.equals("/refresh")) {
+            if (path.equals("/login") || path.equals("/register") || path.equals("/refresh")
+                    || path.equals("/auth/forgot-password") || path.startsWith("/auth/reset-password")) {
                 chain.doFilter(request, response);
                 return;
             }

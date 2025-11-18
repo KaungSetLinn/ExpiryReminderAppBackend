@@ -26,7 +26,7 @@ public class FoodDto {
     private Integer quantity;
     private String unit;
     private Integer totalContents;
-    private Integer currentContents;
+    private Double currentContents;
     private String contentUnit;
     private LocalDate expireDate;
     private String memo;

@@ -16,6 +16,7 @@ public interface FoodMapper {
     @Mapping(source = "category.categoryName", target = "categoryName")
     @Mapping(source = "status.statusId", target = "statusId")
     @Mapping(source = "status.statusName", target = "statusName")
+    @Mapping(source = "currentContents", target = "currentContents")
     FoodDto toDto(Food food);
 
     @InheritInverseConfiguration

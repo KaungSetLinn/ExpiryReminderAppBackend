@@ -46,7 +46,7 @@ public class Food {
     private Integer totalContents;
 
     @Column(name = "current_contents")
-    private Integer currentContents;
+    private Double currentContents;
 
     @Column(name = "content_unit")
     private String contentUnit; // e.g. 個

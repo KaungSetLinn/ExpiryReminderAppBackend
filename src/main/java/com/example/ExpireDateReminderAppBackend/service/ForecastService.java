@@ -25,7 +25,9 @@ public class ForecastService {
         TimeSeries series = TimeSeries.from(TimePeriod.oneMonth(), history);
 
         // ARIMA(1,1,1) order
-        ArimaOrder order = ArimaOrder.order(1, 1, 1);
+        ArimaOrder order = history.length < 3
+                ? ArimaOrder.order(0, 0, 0)  // Simple average model for very small data
+                : ArimaOrder.order(1, 0, 1); // Slightly more complex for more data
 
         // Fit the model (this is correct for v0.4)
         Arima model = Arima.model(series, order);

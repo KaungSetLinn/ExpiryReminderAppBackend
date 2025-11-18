@@ -84,7 +84,7 @@ public class AuthController {
                 return ResponseEntity.ok(responseDto);
             }
         }
-        return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
+        return ResponseEntity.status(401).body(Map.of("message", "ユーザー名またはパスワードが間違っています"));
     }
 
     @PostMapping("/refresh")
